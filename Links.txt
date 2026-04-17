@@ -1,1 +1,11 @@
 https://www.kaggle.com/datasets/dhivyeshrk/diseases-and-symptoms-dataset?resource=download
+
+Healthcare Patient Symptom Triage Conversational Agent
+PROBLEM STATEMENT
+Healthcare providers often face challenges in initial patient symptom assessment, with triage nurses and reception staff overwhelmed by high call volumes and walk-ins. Many patients present with non-urgent symptoms that could be managed with self-care or scheduled appointments, but lack of quick guidance leads to unnecessary emergency visits or delays. Current symptom-checker tools are limited in conversational capabilities and personalization, resulting in low patient trust and engagement. There is a need for an Al-powered conversational agent that can interact with patients to gather symptom information, provide preliminary triage advice, and guide them to appropriate care pathways efficiently.
+Data Considerations:
+Symptom description datasets and triage guidelines from public healthcare sources and anonymized clinical notes. Text data in JSON or CSV format with labeled urgency levels. Data volume should include at least 500 symptom cases covering common conditions. Preprocessing includes text normalization and anonymization. Synthetic dialogues can be generated to augment training. Compliance with healthcare data privacy standards is essential. Integration with medical knowledge bases or symptom check APIs (e.g., Infermedica) is recommended.
+Consider using synthetic or anonymized data where appropriate. Ensure data quality and relevance to the problem context.
+SOLUTION EXPECTATIONS
+A conversational Al agent capable of engaging patients in natural language to collect symptom details and provide triage advice. Features include multi-turn dialogue management, urgency classification based on clinical guidelines. and empathetic response generation. The prototype will have a simple chat Ul demonstrating real-time interaction. Success metrics include 80% triage accuracy and positive user feedback on clarity and empathy. The demo will show. diverse patient conversation flows with actionable care recommendations, integrating GenAl for natural language understanding and generation.
+Feel free to explore creative solutions that align with the problem context and objectives.

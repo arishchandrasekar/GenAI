@@ -9,3 +9,186 @@ Consider using synthetic or anonymized data where appropriate. Ensure data quali
 SOLUTION EXPECTATIONS
 A conversational Al agent capable of engaging patients in natural language to collect symptom details and provide triage advice. Features include multi-turn dialogue management, urgency classification based on clinical guidelines. and empathetic response generation. The prototype will have a simple chat Ul demonstrating real-time interaction. Success metrics include 80% triage accuracy and positive user feedback on clarity and empathy. The demo will show. diverse patient conversation flows with actionable care recommendations, integrating GenAl for natural language understanding and generation.
 Feel free to explore creative solutions that align with the problem context and objectives.
+
+# Healthcare Triage AI
+
+A full-stack patient symptom triage conversational agent powered by **azure/genailab-maas-gpt-4.1** via the TCS GenAI Lab API.
+
+---
+
+## Project Structure
+
+```
+healthcare-triage-ai/
+├── backend/
+│   ├── app/
+│   │   ├── agents/
+│   │   │   ├── conversational_agent.py    # LangChain conversation + memory
+│   │   │   ├── symptom_extraction_agent.py # LLM symptom extractor
+│   │   │   ├── triage_agent.py            # LLM urgency classifier
+│   │   │   └── recommendation_agent.py    # Safe care-pathway advice
+│   │   ├── models/
+│   │   │   └── schemas.py                 # Pydantic request/response models
+│   │   ├── routes/
+│   │   │   └── chat.py                    # POST /chat endpoint
+│   │   ├── services/
+│   │   │   ├── llm_service.py             # ChatOpenAI + Embeddings client
+│   │   │   ├── memory_service.py          # In-memory session store
+│   │   │   └── triage_service.py          # Rule-based triage classifier
+│   │   ├── utils/
+│   │   │   └── logger.py
+│   │   ├── main.py                        # FastAPI app + CORS
+│   │   └── system_prompt.yaml
+│   ├── .env                               # API credentials
+│   ├── requirements.txt
+│   └── start.sh
+│
+└── frontend/
+    ├── src/
+    │   ├── components/
+    │   │   ├── Sidebar.jsx / .module.css
+    │   │   ├── Message.jsx / .module.css
+    │   │   ├── TypingIndicator.jsx / .module.css
+    │   │   ├── AlertBanner.jsx / .module.css
+    │   │   ├── WelcomeScreen.jsx / .module.css
+    │   │   └── ChatInput.jsx / .module.css
+    │   ├── hooks/
+    │   │   └── useChat.js                 # All API + state logic
+    │   ├── App.jsx / App.module.css
+    │   ├── index.css
+    │   └── main.jsx
+    ├── .env
+    ├── index.html
+    ├── package.json
+    └── vite.config.js
+```
+
+---
+
+## Setup & Running
+
+### 1. Backend
+
+```bash
+cd backend
+
+# Create and activate virtual environment
+python -m venv venv
+source venv/bin/activate          # Windows: venv\Scripts\activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Start the server
+uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+```
+
+Backend runs at: **http://localhost:8000**
+
+### 2. Frontend
+
+```bash
+cd frontend
+
+# Install dependencies
+npm install
+
+# Start dev server
+npm run dev
+```
+
+Frontend runs at: **http://localhost:5173**
+
+---
+
+## API Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET`  | `/`      | Health check |
+| `GET`  | `/health`| Health check |
+| `POST` | `/chat`  | Send a message |
+| `DELETE` | `/chat/{session_id}` | Clear session memory |
+
+### POST /chat — Request
+
+```json
+{
+  "session_id": "sess_abc123",
+  "message": "I have a severe headache and fever"
+}
+```
+
+### POST /chat — Response
+
+```json
+{
+  "response": "I'm sorry to hear you're not feeling well...",
+  "triage_level": "MEDIUM",
+  "confidence": 0.7,
+  "extracted_symptoms": ["headache", "fever"],
+  "duration": "",
+  "severity": "",
+  "recommendation": "⚠️ Based on headache, fever, you should consult a doctor soon..."
+}
+```
+
+---
+
+## Agent Architecture
+
+```
+User Message
+    │
+    ▼
+┌─────────────────────────────┐
+│  POST /chat  (routes/chat)  │
+└─────────────┬───────────────┘
+              │
+    ┌─────────┼──────────┐
+    ▼         ▼          ▼
+Symptom    Rule-based  Conversational
+Extraction  Triage     Agent
+Agent      Service     (LangChain)
+    │         │          │
+    ▼         ▼          │
+  LLM       Level     History +
+ Triage   (HIGH/MED/  System Prompt
+  Agent     LOW)          │
+    │         │          ▼
+    └────┬────┘       LLM Response
+         │
+         ▼
+  Recommendation
+      Agent
+         │
+         ▼
+    ChatResponse
+  (response + triage
+   + symptoms + advice)
+```
+
+---
+
+## Configuration
+
+All credentials are in `backend/.env`:
+
+```env
+BASE_URL=https://genailab.tcs.in/cls
+MODEL_NAME=azure/genailab-maas-gpt-4.1
+API_KEY=sk-hgj7G95Hhb8aCf_ymzvdkw
+EMBEDDING_MODEL=azure/genailab-maas-text-embedding-3-large
+```
+
+---
+
+## Triage Levels
+
+| Level | Meaning | Action |
+|-------|---------|--------|
+| **HIGH** | Emergency symptoms | Go to ER / call 112 / 911 immediately |
+| **MEDIUM** | Urgent symptoms | See a doctor within 24–48 hours |
+| **LOW** | Mild symptoms | Monitor at home, OTC care |
+| **SELF-CARE** | Minimal symptoms | Rest, hydration |
+
